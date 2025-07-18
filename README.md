@@ -1,0 +1,1 @@
+Segunda parte da disciplina PISI2. Enquanto a primeira parte do projeto funciona com uma quantidade limitada de pontos de entrega, nessa segunda parte esse problema é resolvido por meio de um algoritmo genético
