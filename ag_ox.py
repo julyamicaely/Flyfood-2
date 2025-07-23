@@ -195,8 +195,8 @@ def mutacao_swap(rota, taxa=0.1):
         nova[i], nova[j] = nova[j], nova[i]
     return nova
 
-def main_matriz():   
-    conteudo = ler_arquivo_matriz("arquivo_4.txt")
+def main_matriz(nome_arquivo):   
+    conteudo = ler_arquivo_matriz(nome_arquivo)
     matriz = formular_matriz(conteudo)
     pontos = encontrar_pontos(matriz)
 
@@ -229,6 +229,8 @@ def main_matriz():
                 nova_popula.append(filho2)
         
         populacao = nova_popula
+    else:
+        return ' '.join(melhor_rota), melhor_aptidao
 
 def main_tsp(nome_arquivo):
     distancias = ler_arquivo_tsp(nome_arquivo)
@@ -290,7 +292,7 @@ def algoritmo_genetico(distancias, qtde_cidades=58, tam_popula=30, num_geracoes=
 
     return populacao, melhor_rota, melhores_p_geracao
 
-def plotar():
+def plotar_resultados_tsp():
     distancias = ler_arquivo_tsp("edgesbrasil58.tsp")
     qtde_cidades = 58
     geracoes = 70
@@ -328,15 +330,57 @@ def plotar():
     plt.tight_layout()
     plt.show()
 
+def plotar_rota(pontos, rota_str, dronometros_da_rota):
+    coords = [pontos['R']] + [pontos[letra] for letra in rota_str.split()] + [pontos['R']]
+    fig, ax = plt.subplots()
+
+    linhas = max(coord[0] for coord in pontos.values()) + 1
+    colunas = max(coord[1] for coord in pontos.values()) + 1
+    for i in range(linhas):
+        ax.axhline(i, color='lightgray', linewidth=0.5)
+    for j in range(colunas):
+        ax.axvline(j, color='lightgray', linewidth=0.5)
+ 
+    for label, (x, y) in pontos.items():
+        ax.plot(y + 0.5, linhas - x - 0.5, 'o', markersize=10)
+        ax.text(y + 0.5, linhas - x - 0.5, label, ha='center', va='center', color='white', bbox=dict(facecolor='black', boxstyle='circle'))
+
+    for i in range(len(coords) - 1):
+        x1, y1 = coords[i]
+        x2, y2 = coords[i + 1]
+        
+        path = [
+            (y1 + 0.5, linhas - x1 - 0.5),
+            (y2 + 0.5, linhas - x1 - 0.5),
+            (y2 + 0.5, linhas - x2 - 0.5)
+        ]
+        ax.plot(*zip(*path), color='blue')
+
+    ax.set_aspect('equal')
+    ax.set_xticks(range(colunas))
+    ax.set_yticks(range(linhas))
+    ax.set_xlim(0, colunas)
+    ax.set_ylim(0, linhas)
+    ax.invert_yaxis()
+    plt.grid(True)
+    # remove R da rota_str
+    rota_str = rota_str.replace('R', '').strip()
+    plt.title(f"Melhor rota: {rota_str}\nDronometros: {dronometros_da_rota}", fontsize=12)
+    plt.show()
+
 if __name__ == "__main__":
-    nome_arquivo_matriz = "arquivo_4.txt"
+    nome_arquivo_matriz = "arquivo_5.txt"
     nome_arquivo_tsp = "edgesbrasil58.tsp"
 
     # Descomente a linha abaixo para executar o algoritmo genético com a matriz
     # main_matriz()
     
     # Descomente a linha abaixo para executar o TSP com o arquivo especificado
-    main_tsp("edgesbrasil58.tsp")
+    #main_tsp("edgesbrasil58.tsp")
 
-    # Executar o algoritmo genético e plotar os resultados
-    #plotar()
+    # Executar o algoritmo genético e plotar os resultados do tsp
+    #plotar_resultados_tsp()
+
+    # Descomente a linha abaixo para plotar a rota a partir do arquivo de matriz
+    rota_str, dronometros_da_rota = main_matriz(nome_arquivo_matriz)
+    plotar_rota(encontrar_pontos(formular_matriz(ler_arquivo_matriz(nome_arquivo_matriz))), rota_str, dronometros_da_rota)
